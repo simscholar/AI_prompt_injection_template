@@ -1,0 +1,15 @@
+
+
+services:
+  logger:
+    build: .
+    container_name: ai_challenge_logger
+    ports:
+      - "5656:5656" 
+      - "8080:8080" 
+    restart: always
+    environment:
+
+      - ADMIN_USERNAME=admin0xgame2025
+      - ADMIN_PASSWORD=you_can_not_guess_me(>_<)
+      - SECRET_KEY=a-very-secret-key-that-you-should-change
