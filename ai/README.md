@@ -76,7 +76,7 @@ python server.py
 
 | 变量名 | 说明 | 默认值 |
 |--------|------|--------|
-| `EXFIL_HOST` | 日志服务器地址 | 115.190.97.52 |
+| `EXFIL_HOST` | 日志服务器地址 | your-logger-server-ip |
 | `EXFIL_PORT` | 日志服务器端口 | 5656 |
 | `FLASK_ENV` | Flask环境 | production |
 | `PORT` | 服务端口 | 5555 |
@@ -112,35 +112,7 @@ ai/
 └── README.md             # 项目文档
 ```
 
-## 开发指南
 
-### 添加新的防护规则
-
-在 `src/server.py` 的 `check_prompt_injection` 函数中添加检测逻辑：
-
-```python
-def check_prompt_injection(user_input):
-    # 现有检测逻辑
-    forbidden_patterns = ["flag", "secret", "password"]
-    
-    # 添加新的检测规则
-    if "your-pattern" in user_input.lower():
-        return True
-    
-    return False
-```
-
-### 自定义AI行为
-
-修改 `src/server.py` 中的对话处理逻辑：
-
-```python
-async def chat_with_ai(user_input, session_id):
-    # 自定义AI响应逻辑
-    system_prompt = """你的自定义提示词...
-    flag: {flag_for_prompt}
-    """
-```
 
 ## 故障排除
 
@@ -152,7 +124,7 @@ async def chat_with_ai(user_input, session_id):
 
 2. **AI无响应**
    - 检查网络连接
-   - 验证SiliconFlow API密钥
+   - 验证SiliconFlow API密钥，自查有没有在平台实名认证
 
 3. **日志发送失败**
    - 确认日志服务器地址正确
