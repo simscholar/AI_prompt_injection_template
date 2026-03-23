@@ -1,6 +1,6 @@
-# AI CTF挑战 - 日志监控服务
+# AI CTF挑战 - 日志监控服务 (可选组件)
 
-> 带身份验证的实时日志监控系统，用于AI安全挑战的交互记录和分析
+> 带身份验证的实时日志监控系统，用于AI安全挑战的交互记录和分析。**作为可选插件使用**。
 
 ## 项目简介
 
@@ -13,32 +13,25 @@
 - ⚡ **实时监控**: 点击会话即可实时查看交互日志
 - 🗑️ **数据清理**: 支持彻底删除会话及其所有日志
 - 📡 **TCP接收**: 在5656端口监听TCP连接接收日志数据
-- 🐳 **容器化部署**: 完整的Docker支持，一键部署
+- 🐳 **容器化部署**: 完整的Docker支持，支持独立部署或一键编排
 
 ## 快速部署
 
-### Docker部署（推荐）
+### 1. 独立部署
+
+如果您想单独运行日志服务来接收来自多个不同题目的日志：
 
 ```bash
+# 进入logger目录
+cd logger
+
 # 构建并启动服务
-docker compose up -d
-
-# 查看服务状态
-docker compose logs -f
-
-# 停止服务
-docker compose down
+docker compose up -d --build
 ```
 
-### 本地开发
+### 2. 配合AI服务一键部署
 
-```bash
-# 安装依赖
-pip install -r requirements.txt
-
-# 启动服务
-python log_receiver.py
-```
+推荐在项目根目录下使用 `docker-compose.yml` 进行一键编排。
 
 ## 服务访问
 

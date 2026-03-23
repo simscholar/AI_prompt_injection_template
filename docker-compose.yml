@@ -1,0 +1,30 @@
+services:
+    ai:
+        build: ./ai
+        container_name: ai_challenge_service
+        ports:
+            - "11434:5555"
+        environment:
+            - EXFIL_HOST=logger
+            - EXFIL_PORT=5656
+        depends_on:
+            - logger
+        networks:
+            - challenge_net
+
+    logger:
+        build: ./logger
+        container_name: ai_challenge_logger
+        ports:
+            - "5656:5656"
+            - "8080:8080"
+        environment:
+            - ADMIN_USERNAME=admin0xgame2025
+            - ADMIN_PASSWORD=you_can_not_guess_me(>_<)
+            - SECRET_KEY=a-very-secret-key-that-you-should-change
+        networks:
+            - challenge_net
+
+networks:
+    challenge_net:
+        driver: bridge

@@ -11,7 +11,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-ENV EXFIL_HOST=your-logger-server-ip
+ENV EXFIL_HOST=logger
 ENV EXFIL_PORT=5656
 ENV OPENAI_BASE_URL=https://api.siliconflow.cn/v1
 ENV SERVER_PORT=5555

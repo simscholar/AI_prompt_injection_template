@@ -1,6 +1,6 @@
-# AI CTF挑战 - 选手端服务
+# AI CTF挑战 - 选手端服务 (核心组件)
 
-> 基于Flask的AI安全挑战平台，专注于Prompt Injection防护
+> 基于Flask的AI安全挑战平台，专注于Prompt Injection防护。**支持完全独立部署**。
 
 ## 项目简介
 
@@ -10,29 +10,33 @@
 
 ## 功能特性
 
-- 🤖 **智能AI对话**: 基于SiliconFlow API的智能对话系统
+- 🤖 **智能AI对话**: 基于SiliconFlow API的智能对话系统，支持动态 Model ID
+- 🛠️ **自定义配置**: 选手可自行输入 API Key 和 Model ID，适配模型变动
 - 🛡️ **多层防护**: 严格的Prompt Injection检测和防护机制
-- 📝 **实时日志**: 完整的交互日志记录和发送
+- 📝 **实时日志 (可选)**: 完整的交互日志记录，支持发送至远程日志服务器
 - 🎨 **精美界面**: 现代化的Web前端界面
-- 🐳 **容器化部署**: 完整的Docker支持
+- 🐳 **容器化部署**: 完整的Docker支持，支持一键独立运行
 - 🔄 **会话管理**: 多用户并发会话支持
 
 ## 快速部署
 
-### Docker部署（推荐）
+### 1. 独立部署 (推荐)
+
+如果您只需要 AI 挑战功能，可以直接启动：
 
 ```bash
+# 进入ai目录
+cd ai
+
 # 构建并启动服务
-docker compose up -d
-
-# 查看服务状态
-docker compose logs -f
-
-# 停止服务
-docker compose down
+docker compose up -d --build
 ```
 
-### 本地开发
+### 2. 配合日志服务部署
+
+如果您需要监控选手的交互记录，请参考项目根目录下的 `docker-compose.yml` 进行一键编排。
+
+### 3. 本地开发
 
 ```bash
 # 安装依赖
@@ -45,7 +49,7 @@ python server.py
 
 ## 服务访问
 
-- **Web界面**: http://localhost:11434
+- **Web界面**: http://localhost:11434 (默认端口)
 - **API端点**: http://localhost:5555
 
 ## 配置说明
@@ -55,14 +59,13 @@ python server.py
 1. **Flag设置**
    - 修改 `flag` 文件内容为您的实际flag
 
-2. **日志服务器配置**
+2. **日志服务器配置 (可选)**
    - 修改 `Dockerfile` 中的日志服务器地址：
    ```dockerfile
-   ENV EXFIL_HOST=your-logger-server-ip
+   ENV EXFIL_HOST=logger # 如果不使用日志服务，可保持默认或设为空
    ENV EXFIL_PORT=5656
    ```
-   
-   *注：如果不需要日志功能，可设置为 `127.0.0.1` 占位*
+   *注：即使日志服务器不可用，AI 挑战功能仍可正常使用。*
 
 3. **AI提示词定制**
    - 修改 `src/server.py` 中的系统提示词内容
@@ -76,10 +79,11 @@ python server.py
 
 | 变量名 | 说明 | 默认值 |
 |--------|------|--------|
-| `EXFIL_HOST` | 日志服务器地址 | your-logger-server-ip |
+| `EXFIL_HOST` | 日志服务器地址 (可选) | logger |
 | `EXFIL_PORT` | 日志服务器端口 | 5656 |
-| `FLASK_ENV` | Flask环境 | production |
-| `PORT` | 服务端口 | 5555 |
+| `OPENAI_BASE_URL` | AI API 基础地址 | https://api.siliconflow.cn/v1 |
+| `SERVER_PORT` | 容器内部服务端口 | 5555 |
+| `FLAG` | 题目的动态flag | flag若是没有写入环境变量，会触发错误flag：FLAG{wrong_ask_yolo} |
 
 ## 安全机制
 
@@ -108,7 +112,6 @@ ai/
 ├── Dockerfile             # 容器构建配置
 ├── requirements.txt       # Python依赖
 ├── start.sh              # 启动脚本
-├── flag                  # Flag文件
 └── README.md             # 项目文档
 ```
 

@@ -1,258 +1,287 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>实时日志查看器</title>
-    <style>
-        :root {
-            --bg-color: #1e1e1e;
-            --text-color: #d4d4d4;
-            --primary-color: #4ec9b0;
-            --panel-bg: #252526;
-            --border-color: #333;
-            --hover-bg: #3c3c3c;
-        }
-        body {
-            font-family: 'Consolas', 'Monaco', monospace;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            margin: 0;
-            display: flex;
-            height: 100vh;
-            overflow: hidden;
-        }
-        .sidebar {
-            width: 280px;
-            background-color: var(--panel-bg);
-            border-right: 1px solid var(--border-color);
-            display: flex;
-            flex-direction: column;
-        }
-        .sidebar-header {
-            padding: 20px;
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .sidebar-header h2 {
-            margin: 0;
-            font-size: 18px;
-            color: var(--primary-color);
-        }
-        #logout-btn {
-            background: none;
-            border: 1px solid var(--primary-color);
-            color: var(--primary-color);
-            padding: 5px 10px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 12px;
-        }
-        #session-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            overflow-y: auto;
-            flex-grow: 1;
-        }
-        .session-item {
-            padding: 15px 20px;
-            cursor: pointer;
-            border-bottom: 1px solid var(--border-color);
-            transition: background-color 0.2s ease;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .session-item:hover {
-            background-color: var(--hover-bg);
-        }
-        .session-item.active {
-            background-color: var(--primary-color);
-            color: var(--bg-color);
-            font-weight: bold;
-        }
-        .main-content {
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-        }
-        .log-header {
-            padding: 20px;
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .log-header h1 {
-            margin: 0;
-            font-size: 18px;
-        }
-        #clear-logs-btn {
-            background-color: #c94e4e;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 4px;
-            cursor: pointer;
-            display: none; /* Initially hidden */
-        }
-        #clear-logs-btn:hover {
-            background-color: #e55a5a;
-        }
-        #log-container {
-            padding: 15px;
-            overflow-y: auto;
-            flex-grow: 1;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            font-size: 14px;
-            line-height: 1.6;
-        }
-        .log-entry {
-            padding: 2px 0;
-        }
-    </style>
-</head>
-<body>
-    <div class="sidebar">
-        <div class="sidebar-header">
-            <h2>会话列表</h2>
-            <button id="logout-btn" onclick="window.location.href='/logout'">登出</button>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>实时日志查看器</title>
+        <style>
+            :root {
+                --bg-color: #1e1e1e;
+                --text-color: #d4d4d4;
+                --primary-color: #4ec9b0;
+                --panel-bg: #252526;
+                --border-color: #333;
+                --hover-bg: #3c3c3c;
+            }
+            body {
+                font-family: "Consolas", "Monaco", monospace;
+                background-color: var(--bg-color);
+                color: var(--text-color);
+                margin: 0;
+                display: flex;
+                height: 100vh;
+                overflow: hidden;
+            }
+            .sidebar {
+                width: 280px;
+                background-color: var(--panel-bg);
+                border-right: 1px solid var(--border-color);
+                display: flex;
+                flex-direction: column;
+            }
+            .sidebar-header {
+                padding: 20px;
+                border-bottom: 1px solid var(--border-color);
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            .sidebar-header h2 {
+                margin: 0;
+                font-size: 18px;
+                color: var(--primary-color);
+            }
+            #logout-btn {
+                background: none;
+                border: 1px solid var(--primary-color);
+                color: var(--primary-color);
+                padding: 5px 10px;
+                border-radius: 4px;
+                cursor: pointer;
+                font-size: 12px;
+            }
+            #session-list {
+                list-style: none;
+                padding: 0;
+                margin: 0;
+                overflow-y: auto;
+                flex-grow: 1;
+            }
+            .session-item {
+                padding: 15px 20px;
+                cursor: pointer;
+                border-bottom: 1px solid var(--border-color);
+                transition: background-color 0.2s ease;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            .session-item:hover {
+                background-color: var(--hover-bg);
+            }
+            .session-item.active {
+                background-color: var(--primary-color);
+                color: var(--bg-color);
+                font-weight: bold;
+            }
+            .main-content {
+                flex-grow: 1;
+                display: flex;
+                flex-direction: column;
+            }
+            .log-header {
+                padding: 20px;
+                border-bottom: 1px solid var(--border-color);
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            .log-header h1 {
+                margin: 0;
+                font-size: 18px;
+            }
+            #clear-logs-btn {
+                background-color: #c94e4e;
+                color: white;
+                border: none;
+                padding: 8px 15px;
+                border-radius: 4px;
+                cursor: pointer;
+                display: none; /* Initially hidden */
+            }
+            #clear-logs-btn:hover {
+                background-color: #e55a5a;
+            }
+            #log-container {
+                padding: 15px;
+                overflow-y: auto;
+                flex-grow: 1;
+                white-space: pre-wrap;
+                word-wrap: break-word;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+            .log-entry {
+                padding: 2px 0;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2>会话列表</h2>
+                <button
+                    id="logout-btn"
+                    onclick="window.location.href = '/logout'"
+                >
+                    登出
+                </button>
+            </div>
+            <ul id="session-list"></ul>
         </div>
-        <ul id="session-list"></ul>
-    </div>
-    <div class="main-content">
-        <div class="log-header">
-            <h1 id="current-session-title">请选择一个会话</h1>
-            <button id="clear-logs-btn">删除此会话</button>
+        <div class="main-content">
+            <div class="log-header">
+                <h1 id="current-session-title">请选择一个会话</h1>
+                <button id="clear-logs-btn">删除此会话</button>
+            </div>
+            <div id="log-container"></div>
         </div>
-        <div id="log-container"></div>
-    </div>
 
-    <script>
-        const sessionList = document.getElementById('session-list');
-        const logContainer = document.getElementById('log-container');
-        const currentSessionTitle = document.getElementById('current-session-title');
-        const clearLogsBtn = document.getElementById('clear-logs-btn');
+        <script>
+            const sessionList = document.getElementById("session-list");
+            const logContainer = document.getElementById("log-container");
+            const currentSessionTitle = document.getElementById(
+                "current-session-title",
+            );
+            const clearLogsBtn = document.getElementById("clear-logs-btn");
 
-        let activeSessionId = null;
-        let isAutoScrolling = true;
+            let activeSessionId = null;
+            let isAutoScrolling = true;
 
-        async function fetchSessions() {
-            try {
-                const response = await fetch('/api/sessions');
-                if (!response.ok) return;
-                const sessions = await response.json();
+            async function fetchSessions() {
+                try {
+                    const response = await fetch("/api/sessions");
+                    if (!response.ok) return;
+                    const sessions = await response.json();
 
-                const currentSessionIds = Array.from(sessionList.children).map(item => item.dataset.sessionId);
-                
-                // Only update if session list changed
-                if (JSON.stringify(sessions) !== JSON.stringify(currentSessionIds)) {
-                    sessionList.innerHTML = '';
-                    sessions.forEach(sessionId => {
-                        const li = document.createElement('li');
-                        li.className = 'session-item';
-                        li.textContent = sessionId;
-                        li.dataset.sessionId = sessionId;
-                        li.onclick = () => selectSession(sessionId);
-                        sessionList.appendChild(li);
-                    });
-                }
-                
-                // If there's an active session, keep it highlighted
-                if (activeSessionId) {
-                    const activeItem = sessionList.querySelector(`.session-item[data-session-id="${activeSessionId}"]`);
-                    if (activeItem) activeItem.classList.add('active');
-                }
+                    const currentSessionIds = Array.from(
+                        sessionList.children,
+                    ).map((item) => item.dataset.sessionId);
 
-            } catch (error) {
-                console.error('获取会话列表失败:', error);
-            }
-        }
-
-        async function selectSession(sessionId) {
-            if (activeSessionId === sessionId) return;
-            
-            activeSessionId = sessionId;
-            isAutoScrolling = true;
-
-            // Update UI
-            document.querySelectorAll('.session-item').forEach(item => item.classList.remove('active'));
-            const activeItem = sessionList.querySelector(`.session-item[data-session-id="${sessionId}"]`);
-            if (activeItem) activeItem.classList.add('active');
-            
-            currentSessionTitle.textContent = `日志: ${sessionId}`;
-            clearLogsBtn.style.display = 'block';
-            
-            await fetchLogsForSession(sessionId);
-        }
-
-        async function fetchLogsForSession(sessionId) {
-            if (!sessionId) return;
-            try {
-                const response = await fetch(`/api/logs/${sessionId}`);
-                if (!response.ok) return;
-                const logs = await response.json();
-                
-                logContainer.innerHTML = logs.map(log => `<div class="log-entry">${log}</div>`).join('');
-                scrollToBottom();
-
-            } catch (error) {
-                console.error(`获取会话 ${sessionId} 的日志失败:`, error);
-            }
-        }
-        
-        clearLogsBtn.addEventListener('click', async () => {
-            if (!activeSessionId || !confirm(`确定要删除会话 "${activeSessionId}" 吗？此操作不可恢复。`)) {
-                return;
-            }
-            try {
-                const response = await fetch(`/api/delete/${activeSessionId}`, { method: 'POST' });
-                if (response.ok) {
-                    // Reset the view
-                    logContainer.innerHTML = '';
-                    currentSessionTitle.textContent = '请选择一个会话';
-                    clearLogsBtn.style.display = 'none';
-
-                    // Remove the session from the list in the UI
-                    const itemToRemove = sessionList.querySelector(`.session-item[data-session-id="${activeSessionId}"]`);
-                    if (itemToRemove) {
-                        itemToRemove.remove();
+                    // Only update if session list changed
+                    if (
+                        JSON.stringify(sessions) !==
+                        JSON.stringify(currentSessionIds)
+                    ) {
+                        sessionList.innerHTML = "";
+                        sessions.forEach((sessionId) => {
+                            const li = document.createElement("li");
+                            li.className = "session-item";
+                            li.textContent = sessionId;
+                            li.dataset.sessionId = sessionId;
+                            li.onclick = () => selectSession(sessionId);
+                            sessionList.appendChild(li);
+                        });
                     }
 
-                    activeSessionId = null;
-                } else {
-                    alert('删除会话失败');
+                    // If there's an active session, keep it highlighted
+                    if (activeSessionId) {
+                        const activeItem = sessionList.querySelector(
+                            `.session-item[data-session-id="${activeSessionId}"]`,
+                        );
+                        if (activeItem) activeItem.classList.add("active");
+                    }
+                } catch (error) {
+                    console.error("获取会话列表失败:", error);
                 }
-            } catch (error) {
-                console.error('删除会话时出错:', error);
             }
-        });
 
-        function scrollToBottom() {
-            if (isAutoScrolling) {
-                logContainer.scrollTop = logContainer.scrollHeight;
+            async function selectSession(sessionId) {
+                if (activeSessionId === sessionId) return;
+
+                activeSessionId = sessionId;
+                isAutoScrolling = true;
+
+                // Update UI
+                document
+                    .querySelectorAll(".session-item")
+                    .forEach((item) => item.classList.remove("active"));
+                const activeItem = sessionList.querySelector(
+                    `.session-item[data-session-id="${sessionId}"]`,
+                );
+                if (activeItem) activeItem.classList.add("active");
+
+                currentSessionTitle.textContent = `日志: ${sessionId}`;
+                clearLogsBtn.style.display = "block";
+
+                await fetchLogsForSession(sessionId);
             }
-        }
 
-        logContainer.addEventListener('scroll', () => {
-            isAutoScrolling = logContainer.scrollHeight - logContainer.clientHeight <= logContainer.scrollTop + 1;
-        });
+            async function fetchLogsForSession(sessionId) {
+                if (!sessionId) return;
+                try {
+                    const response = await fetch(`/api/logs/${sessionId}`);
+                    if (!response.ok) return;
+                    const logs = await response.json();
 
-        // Initial load and periodic refresh
-        fetchSessions();
-        setInterval(fetchSessions, 3000); // Refresh session list every 3 seconds
-
-        // Refresh logs for active session
-        setInterval(() => {
-            if (activeSessionId) {
-                fetchLogsForSession(activeSessionId);
+                    logContainer.innerHTML = logs
+                        .map((log) => `<div class="log-entry">${log}</div>`)
+                        .join("");
+                    scrollToBottom();
+                } catch (error) {
+                    console.error(`获取会话 ${sessionId} 的日志失败:`, error);
+                }
             }
-        }, 2000);
 
-    </script>
-</body>
+            clearLogsBtn.addEventListener("click", async () => {
+                if (
+                    !activeSessionId ||
+                    !confirm(
+                        `确定要删除会话 "${activeSessionId}" 吗？此操作不可恢复。`,
+                    )
+                ) {
+                    return;
+                }
+                try {
+                    const response = await fetch(
+                        `/api/delete/${activeSessionId}`,
+                        { method: "POST" },
+                    );
+                    if (response.ok) {
+                        // Reset the view
+                        logContainer.innerHTML = "";
+                        currentSessionTitle.textContent = "请选择一个会话";
+                        clearLogsBtn.style.display = "none";
+
+                        // Remove the session from the list in the UI
+                        const itemToRemove = sessionList.querySelector(
+                            `.session-item[data-session-id="${activeSessionId}"]`,
+                        );
+                        if (itemToRemove) {
+                            itemToRemove.remove();
+                        }
+
+                        activeSessionId = null;
+                    } else {
+                        alert("删除会话失败");
+                    }
+                } catch (error) {
+                    console.error("删除会话时出错:", error);
+                }
+            });
+
+            function scrollToBottom() {
+                if (isAutoScrolling) {
+                    logContainer.scrollTop = logContainer.scrollHeight;
+                }
+            }
+
+            logContainer.addEventListener("scroll", () => {
+                isAutoScrolling =
+                    logContainer.scrollHeight - logContainer.clientHeight <=
+                    logContainer.scrollTop + 1;
+            });
+
+            // Initial load and periodic refresh
+            fetchSessions();
+            setInterval(fetchSessions, 3000); // Refresh session list every 3 seconds
+
+            // Refresh logs for active session
+            setInterval(() => {
+                if (activeSessionId) {
+                    fetchLogsForSession(activeSessionId);
+                }
+            }, 2000);
+        </script>
+    </body>
 </html>

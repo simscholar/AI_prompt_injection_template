@@ -1,98 +1,87 @@
 # 0xGame AI CTF挑战平台
 
-> 一个完整的AI提示词越狱挑战平台模板，包含选手端AI服务和后台日志监控系统，本项目二创于多多师傅的RDCTF挑战中的一个题目，致谢多多
+> 一个完整的AI提示词越狱挑战平台模板，包含选手端AI服务和可选的后台日志监控系统。
 
 ## 项目概述
-本项目是一个CTF（Capture The Flag）安全挑战平台，专注于AI安全和Prompt Injection防护。项目包含两个核心组件：
+本项目专注于AI安全和Prompt Injection防护挑战。为了适应不同的出题需求，项目采用模块化设计：
 
-1. **AI服务** (`ai/`) - 选手端AI聊天服务，扮演神秘图书馆管理员角色
-2. **日志服务** (`logger/`) - 后台日志监控系统，实时记录和查看AI交互
+1. **AI服务 (核心)** (`ai/`) - 选手端AI聊天服务，扮演神秘图书馆管理员角色。**支持完全独立部署**。
+2. **日志服务 (可选)** (`logger/`) - 后台日志监控系统，用于实时监控选手的交互记录。
 
 ## 项目结构
-> 温馨提示：logger服务可以不用配置，细节请看ai/README.md
 
 ```
 ai_timu/
-├── ai/                          # 选手端AI服务
+├── ai/                          # 选手端AI服务 (核心)
 │   ├── src/                     # 源代码目录
-│   │   ├── server.py           # Flask主服务
-│   │   ├── log_manager.py      # 日志管理器
-│   │   ├── wsgi.py             # WSGI配置
-│   │   └── templates/          # 前端模板
-│   │       └── index.html      # 主界面
-│   ├── docker-compose.yml      # Docker编排配置
-│   ├── Dockerfile              # 容器构建配置
-│   ├── requirements.txt        # Python依赖
-│   ├── start.sh               # 启动脚本
-│   ├── flag                   # Flag文件
-│   └── README.md              # AI服务文档
-├── logger/                     # 后台日志服务
-│   ├── templates/              # Web界面模板
-│   │   ├── logger_index.html  # 日志查看界面
-│   │   └── login.html         # 登录页面
-│   ├── docker-compose.yml     # Docker编排配置
-│   ├── Dockerfile             # 容器构建配置
-│   ├── log_receiver.py        # 日志接收服务
-│   ├── requirements.txt       # Python依赖
-│   └── README.md              # 日志服务文档
-└── README.md                  # 主项目文档（本文件）
+│   └── ...
+├── logger/                     # 后台日志服务 (可选)
+│   ├── log_receiver.py          # 主程序
+│   └── ...
+├── docker-compose.yml          # 全局一键编排配置
+└── README.md                   # 主项目文档 (本文件)
 ```
 
 ## 功能特性
 
 ### AI服务特性
 - 🤖 基于Flask的AI聊天服务，集成SiliconFlow API
+- 🛠️ 支持选手自定义 API Key 和 Model ID，避免硬编码失效
 - 🛡️ 多层Prompt Injection防护机制
-- 📝 实时日志记录和发送
+- 📝 实时日志发送 (支持远程服务器，即使服务器不可用也不影响挑战)
 - 🎨 精美的Web前端界面
 - 🐳 完整的Docker容器化部署
 
-### 日志服务特性
+### 日志服务特性 (可选)
 - 🔐 带身份验证的Web管理界面
 - 📊 实时日志接收和分类显示
 - 🗂️ 按会话ID自动分类管理
-- 🗑️ 会话删除功能
-- 🌐 多用户并发支持
 
 ## 快速开始
 
-### 1. 环境要求
-- Docker & Docker Compose
-- Python 3.8+
+### 方案 A：一键全栈部署 (推荐)
 
-### 2. 一键部署
+如果您希望同时拥有 AI 挑战和后台日志监控功能：
 
 ```bash
-# 部署AI服务
-cd ai
-docker compose up -d
-
-# 部署日志服务
-cd ../logger
-docker compose up -d
+# 在项目根目录下
+docker compose up -d --build
 ```
 
-### 3. 访问服务
+### 方案 B：仅部署 AI 挑战服务 (最简模式)
 
-- **AI服务**: http://localhost:11434
-- **日志服务**: http://localhost:8080
+如果您只需要 AI 挑战功能，不需要后台监控：
+
+```bash
+cd ai
+docker compose up -d --build
+```
+
+## 访问服务
+
+- **AI挑战服务**: http://localhost:11434
+- **日志监控后台**: http://localhost:8080 (仅在方案 A 下可用)
 
 ## 详细配置
 
-### AI服务配置
+### 1. Flag 配置
+修改 `ai/flag` 文件内容为您的实际 Flag。
 
-修改 `ai/src/server.py` 中的系统提示词：
-```python
-system_prompt = """你是一个神秘图书馆的管理员...
-flag: {flag_for_prompt}
-"""
-```
+### 2. AI 提示词定制
+修改 `ai/src/server.py` 中的 `prompt` 变量内容。
 
-配置日志服务器地址：
-```dockerfile
-ENV EXFIL_HOST=your-logger-server-ip
-ENV EXFIL_PORT=5656
-```
+### 3. 日志上报配置
+在 `docker-compose.yml` (方案 A) 或 `ai/Dockerfile` (方案 B) 中修改 `EXFIL_HOST`：
+- 方案 A 下默认为 `logger`。
+- 方案 B 下若不使用日志，可保持默认。
+
+## 常见问题
+
+**Q: 为什么 API Key 验证失败？**
+A: 请确保您的 SiliconFlow 账号已完成实名认证，并检查 API Key 是否正确。
+
+**Q: 选手可以更换模型吗？**
+A: 可以。前端提供了 Model ID 输入框，选手可以填入硅基流动支持的任何有效模型 ID。
 
 ### 日志服务配置
 

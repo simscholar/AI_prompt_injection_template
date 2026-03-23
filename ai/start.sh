@@ -1,7 +1,12 @@
 #!/bin/bash
 
-# 0xGame CTF AI Challenge 启动脚本
 set -e
+if [ -n "$FLAG" ]; then
+    echo "$FLAG" > /app/flag
+    unset FLAG
+else
+    echo "FLAG{wrong_ask_yolo}" > /app/flag
+fi
 
 echo "=== 0xGame AI Challenge 启动脚本 ==="
 echo "时间: $(date)"
@@ -28,7 +33,7 @@ cleanup() {
             echo "等待应用关闭... ($i/10)"
             sleep 1
         done
- 
+
         if kill -0 $APP_PID 2>/dev/null; then
             echo "强制终止应用进程"
             kill -KILL $APP_PID 2>/dev/null || true
@@ -50,11 +55,11 @@ cleanup() {
                 fi
             fi
         done
-        
+
         echo "发送服务关闭信号..."
         timeout 3 bash -c "echo 'CONTAINER_SHUTDOWN:$(date -Iseconds)' | nc $EXFIL_HOST $EXFIL_PORT" || true
     fi
-    
+
     echo "=== 清理完成，服务即将退出 ==="
     exit 0
 }
